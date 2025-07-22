@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+httpx>=0.24.0
+
+langdetect
+
+# Dev
+python-dotenv>=1.0.1,<2.0.0
+git+https://github.azc.ext.hp.com/IPSS-AI-CoE/loki.git@feature/nio_orderboard

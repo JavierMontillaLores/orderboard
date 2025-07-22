@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ordersdb
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+      
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/ordersdb
+    depends_on:
+      - db
+    ports:
+      - "8001:8000"
+
+  ai-agent:
+      build: ./ai-agent
+      environment:
+        BACKEND_URL: http://backend:8000/query
+        # OAuth configuration
+        OAUTH_TOKEN_ENDPOINT: ${OAUTH_TOKEN_ENDPOINT}
+        OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+        OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
+        OAUTH_HTTP_PROXY: ${OAUTH_HTTP_PROXY}
+        OAUTH_HTTPS_PROXY: ${OAUTH_HTTPS_PROXY}
+        OAUTH_SSL_VERIFY: ${OAUTH_SSL_VERIFY}
+        OAUTH_REFRESH_ENABLED: ${OAUTH_REFRESH_ENABLED}
+        OAUTH_SECURE_STORAGE_DIR: ${OAUTH_SECURE_STORAGE_DIR}
+        OAUTH_TOKEN_STORAGE: ${OAUTH_TOKEN_STORAGE}
+        OAUTH_GRANT_TYPE: ${OAUTH_GRANT_TYPE}
+        OAUTH_PASSPHRASE: ${OAUTH_PASSPHRASE}
+        # TIO configuration
+        TIO_HTTP_PROXY: ${TIO_HTTP_PROXY}
+        TIO_HTTPS_PROXY: ${TIO_HTTPS_PROXY}
+        TIO_SSL_VERIFY: ${TIO_SSL_VERIFY}
+        TIO_GPT4O_MINI_ENDPOINT: ${TIO_GPT4O_MINI_ENDPOINT}
+        TIO_GPT4O_ENDPOINT: ${TIO_GPT4O_ENDPOINT}
+      env_file:
+        - .env
+      depends_on:
+        - backend
+      ports:
+        - "8080:8080"
+
+  frontend:
+    build: ./orderboard-ui
+    environment:
+        BACKEND_URL: http://backend:8000/
+        AI_AGENT_URL: http://ai-agent:8080/
+    depends_on:
+      - backend
+      - ai-agent
+    ports:
+      - "3001:80"

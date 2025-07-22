@@ -1,0 +1,50 @@
+/* ===================================
+   APP LAYOUT
+   ================================== */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f9fafb;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* Prevent layout shifts */
+}
+
+.main-content {
+  flex: 1;
+  overflow: auto;
+  min-width: 0; /* Prevent flex items from overflowing */
+  max-width: calc(100vw - 240px - 480px); /* Account for both sidebars */
+  transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth transition */
+}
+
+/* Responsive adjustments for sidebar states */
+@media (max-width: 1200px) {
+  .main-content {
+    max-width: calc(100vw - 240px - 400px); /* Narrower right sidebar */
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    max-width: calc(100vw - 240px); /* Hide right sidebar on mobile */
+  }
+}
+
+/* Handle collapsed sidebar states */
+.app-body:has(.sidebar.collapsed) .main-content {
+  max-width: calc(100vw - 60px - 480px);
+}
+
+.app-body:has(.right-sidebar.collapsed) .main-content {
+  max-width: calc(100vw - 240px - 60px);
+}
+
+.app-body:has(.sidebar.collapsed):has(.right-sidebar.collapsed) .main-content {
+  max-width: calc(100vw - 60px - 60px);
+}
